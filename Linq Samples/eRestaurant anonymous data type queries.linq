@@ -1,4 +1,4 @@
-<Query Kind="Expression">
+<Query Kind="Program">
   <Connection>
     <ID>f7303b1a-da38-4932-ba34-19ae4c26a4b7</ID>
     <Persist>true</Persist>
@@ -7,16 +7,67 @@
   </Connection>
 </Query>
 
-// Anonymousdata type queries
-from food in Items 
-where food.MenuCategory.Description.Equals("Entree")
-		&& food.Active
-		orderby food.Active
-orderby food.CurrentPrice descending
-select new //POCOObjectName
+void Main()
 {
-	Description = food.Description, 
-	price = food.CurrentPrice,
-	Cost = food.CurrentCost,
-	Profit = food.CurrentPrice - food.CurrentCost
+	// Anonymousdata type queries
+	//from food in Items 
+	//where food.MenuCategory.Description.Equals("Entree")
+	//		&& food.Active
+	//		orderby food.Active
+	//orderby food.CurrentPrice descending
+	//select new //POCOObjectName
+	//{
+	//	Description = food.Description, 
+	//	price = food.CurrentPrice,
+	//	Cost = food.CurrentCost,
+	//	Profit = food.CurrentPrice - food.CurrentCost
+	//}
+	
+	var results = from food in Items 
+				where food.MenuCategory.Description.Equals("Entree")
+						&& food.Active
+						orderby food.Active
+				orderby food.CurrentPrice descending
+				select new FoodMargins()
+					{
+						Description = food.Description, 
+						Price = food.CurrentPrice,
+						Cost = food.CurrentCost,
+						Profit = food.CurrentPrice - food.CurrentCost
+					};
+	results.Dump();
+	
+	//get all the bills and bill items for waiters in sep of 2014.
+	//only those bills which were paid.
+	var result2 = from orders in Bills
+				  where orders.PaidStatus &&
+				  (orders.BillDate.Month == 9 && orders.BillDate.Year == 2014)
+				  orderby orders.Waiter.LastName, orders.Waiter.FirstName
+				  select new 
+				  {
+				  	 BillID = orders.BillID,
+					 WaiterName = orders.Waiter.LastName + ", " + orders.Waiter.FirstName,
+					 Orders = orders.BillItems
+			      };
+	result2.Dump();
+}//eop
+
+// Define other methods and classes here
+
+// This is a POCO class
+public class FoodMargins
+{
+	public string Description {get; set;}
+	public decimal Price {get; set;}
+	public decimal Cost {get; set;}
+	public decimal Profit {get; set;}
+}
+
+// This is a DTO class
+public class BillOrders
+{
+	public int BillID {get; set;}
+	public  string WaiterName {get; set;}
+	//public BillItems Orders {get; set;}
+	public IEnumerable Orders {get; set;}
 }
