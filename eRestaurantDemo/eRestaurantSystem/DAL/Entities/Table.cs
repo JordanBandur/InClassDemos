@@ -16,12 +16,19 @@ namespace eRestaurantSystem.DAL.Entities
     {
         [Key]
         public int TableID { get; set; }
+        [Required, Range(1,25)]
         public byte TableNumber { get; set; }
         public bool Smoking { get; set; }
+        [Required]
         public int Capacity { get; set; }
         public bool Available { get; set; }
 
         //Navigational properties
         public virtual ICollection<Reservation> Reservations { get; set; }
+
+        public Table()
+        {
+            Available = true;
+        }
     }
 }
