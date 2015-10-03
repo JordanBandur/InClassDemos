@@ -25,6 +25,7 @@ namespace eRestaurantSystem.DAL.Entities
 
         //Navigational properties
         public virtual ICollection<Reservation> Reservations { get; set; }
+        public virtual ICollection<Bill> Bills { get; set; }
 
         public Table()
         {
