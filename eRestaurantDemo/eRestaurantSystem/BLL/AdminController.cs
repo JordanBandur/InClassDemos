@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using eRestaurantSystem.DAL;
 using eRestaurantSystem.DAL.Entities;
 using System.ComponentModel; //Object data source
+using eRestaurantSystem.DAL.DTOs;
+using eRestaurantSystem.DAL.POCOs;
 #endregion
 
 namespace eRestaurantSystem.BLL
@@ -45,6 +47,39 @@ namespace eRestaurantSystem.BLL
                               where item.EventCode.Equals(eventcode)
                               orderby item.CustomerName, item.ReservationDate
                               select item;
+                return results.ToList();
+            }
+        }
+        [DataObjectMethod(DataObjectMethodType.Select,false)]
+        public List<ReservationsByDate> GetReservationByDate(string reservationdate)
+        {
+            using (var context = new eRestaurantContext())
+            {
+                //Linq is not very playful or cooperative with DateTime
+
+                //extract the year, month and day ourselves out of the passed parameter value
+                int theYear = (DateTime.Parse(reservationdate)).Year;
+                int theMonth = (DateTime.Parse(reservationdate)).Month;
+                int theDay = (DateTime.Parse(reservationdate)).Day;
+
+                var results = from eventitem in context.SpecialEvents
+                              orderby eventitem.Description
+                              select new ReservationsByDate() //a new instance for each specialevent row on the table
+                              {
+                                  Description = eventitem.Description,
+                                  Reservations = from row in eventitem.Reservations
+                                                 where row.ReservationDate.Year == theYear
+                                                 && row.ReservationDate.Month == theMonth
+                                                 && row.ReservationDate.Day == theDay
+                                                 select new ReservationDetail() //a new instance 
+                                                 {
+                                                     CustomerName = row.CustomerName,
+                                                     ReservationDate = row.ReservationDate,
+                                                     NumberInParty = row.NumberInParty,
+                                                     ContactPhone = row.ContactPhone,
+                                                     ReservationStatus = row.ReservationStatus
+                                                 }
+                              };
                 return results.ToList();
             }
         }
