@@ -17,6 +17,7 @@ namespace eRestaurantSystem.BLL
     [DataObject]
     public class AdminController
     {
+        #region Queries
         [DataObjectMethod(DataObjectMethodType.Select, false)]
         public List<SpecialEvent> SpecialEvents_List()
         {
@@ -107,6 +108,53 @@ namespace eRestaurantSystem.BLL
                 return results.ToList();
             }
         }
+        #endregion
+
+        #region Add, Update, Delete of CRUD
+        [DataObjectMethod(DataObjectMethodType.Insert, false)]
+        public void SpecialEvents_Add(SpecialEvent item)
+        {
+            using (eRestaurantContext context = new eRestaurantContext())
+            {
+                //these methods are executed using an instance level item
+                //set up a instance pointer and initialize to null
+                SpecialEvent added = null;
+                //setup the command to execute the add
+                added = context.SpecialEvents.Add(item);
+                //command not executed until saved
+                context.SaveChanges();
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Update, false)]
+        public void SpecialEvents_Update(SpecialEvent item)
+        {
+            using (eRestaurantContext context = new eRestaurantContext())
+            {
+                //indicate the updating instance, alter the modified status flag for this instance
+                context.Entry<SpecialEvent>(context.SpecialEvents.Attach(item)).State = System.Data.Entity.EntityState.Modified;
+
+                //command not executed until saved
+                context.SaveChanges();
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Delete, false)]
+        public void SpecialEvents_Delete(SpecialEvent item)
+        {
+            using (eRestaurantContext context = new eRestaurantContext())
+            {
+                //lookup the instance and record if found
+                SpecialEvent existing = context.SpecialEvents.Find(item.EventCode);
+
+                //setup the command to execute the add
+                context.SpecialEvents.Remove(existing);
+                
+                //command not executed until saved
+                context.SaveChanges();
+            }
+        }
+        #endregion
     }
 }
 
